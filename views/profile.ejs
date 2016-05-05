@@ -76,4 +76,40 @@
     </div>
   </div>
 </div>
+<div class="row">
+  <!-- LINKEDIN INFORMATION -->
+  <div class="col-sm-6">
+    <div class="well">
+      <h3 class="text-info"><span class="fa fa-linkedin"></span> Linkedin</h3>
+      <% if (user.linkedin.token) { %>
+      <p>
+        <strong>id</strong>: <%= user.linkedin.id %><br>
+        <strong>token</strong>: <%= user.linkedin.token %><br>
+        <strong>email</strong>: <%= user.linkedin.email %><br>
+        <strong>name</strong>: <%= user.linkedin.name %>
+      </p>
+      <a href="/unlink/linkedin" class="btn btn-primary">Unlink Linkedin</a>
+      <% } else { %>
+        <a href="/connect/linkedin" class="btn btn-primary">Connect Linkedin</a>
+      <% } %>
+    </div>
+  </div>
+  <!-- GITHUB INFORMATION -->
+  <div class="col-sm-6">
+    <div class="well">
+      <h3><span class="fa fa-github"></span> Github</h3>
+      <% if (user.github.token) { %>
+      <p>
+        <strong>id</strong>: <%= user.github.id %><br>
+        <strong>token</strong>: <%= user.github.token %><br>
+        <strong>email</strong>: <%= user.github.email %><br>
+        <strong>name</strong>: <%= user.github.name %>
+      </p>
+      <a href="/unlink/github" class="btn btn-default">Unlink Github</a>
+      <% } else { %>
+        <a href="/connect/github" class="btn btn-default">Connect Github</a>
+      <% }%>
+    </div>
+  </div>
+</div>
 <% include footer %>

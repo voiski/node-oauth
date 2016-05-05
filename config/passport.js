@@ -3,6 +3,8 @@ var LocalStrategy = require('passport-local').Strategy;
 var FacebookStrategy = require('passport-facebook').Strategy;
 var TwitterStrategy = require('passport-twitter').Strategy;
 var GoogleStrategy = require('passport-google-oauth').OAuth2Strategy;
+var LinkedinStrategy = require('passport-linkedin-oauth2').Strategy;
+var GithubStrategy = require('passport-github2').Strategy;
 // load up the user model
 var User = require('../app/models/user');
 // load the auth config
@@ -117,7 +119,8 @@ module.exports = function(passport) {
             clientID: configAuth.facebookAuthMine.clientID,
             clientSecret: configAuth.facebookAuthMine.clientSecret,
             callbackURL: configAuth.facebookAuthMine.callbackURL,
-            profileFields: ['id', 'name', 'email'],
+            scope: configAuth.facebookAuthMine.scope,
+            profileFields: configAuth.facebookAuthMine.profileFields,
             passReqToCallback: true // allows us to pass in the req from our route (lets us check if a user is logged in or not)
         },
         function(request, token, refreshToken, profile, done) {
@@ -139,6 +142,7 @@ module.exports = function(passport) {
             consumerKey: configAuth.twitterAuthMine.consumerKey,
             consumerSecret: configAuth.twitterAuthMine.consumerSecret,
             callbackURL: configAuth.twitterAuthMine.callbackURL,
+            scope: configAuth.twitterAuthMine.scope,
             passReqToCallback: true // allows us to pass in the req from our route (lets us check if a user is logged in or not)
         },
         function(request, token, tokenSecret, profile, done) {
@@ -159,6 +163,7 @@ module.exports = function(passport) {
             clientID: configAuth.googleAuthMine.clientID,
             clientSecret: configAuth.googleAuthMine.clientSecret,
             callbackURL: configAuth.googleAuthMine.callbackURL,
+            scope: configAuth.googleAuthMine.scope,
             passReqToCallback: true // allows us to pass in the req from our route (lets us check if a user is logged in or not)
         },
         function(request, token, refreshToken, profile, done) {
@@ -174,7 +179,49 @@ module.exports = function(passport) {
             });
         }));
 
-    //close module.exports
+    //Linkedin
+    passport.use(new LinkedinStrategy({
+            clientID: configAuth.linkedinAuth.clientID,
+            clientSecret: configAuth.linkedinAuth.clientSecret,
+            callbackURL: configAuth.linkedinAuth.callbackURL,
+            scope: configAuth.linkedinAuth.scope,
+            passReqToCallback: true, // allows us to pass in the req from our route (lets us check if a user is logged in or not)
+            state: true
+        },
+        function(request, token, refreshToken, profile, done) {
+            handleUser(request, token, null, profile, done, {
+                'linkedin.id': profile.id
+            }, function(user, profile, token) {
+                var changed = !user.linkedin.token
+                user.linkedin.id = profile.id;
+                user.linkedin.token = token;
+                user.linkedin.name = profile.displayName;
+                user.linkedin.email = (profile.emails[0].value || '').toLowerCase(); // pull the first email
+                return changed;
+            });
+        }));
+
+    //Github
+    passport.use(new GithubStrategy({
+            clientID: configAuth.githubAuth.clientID,
+            clientSecret: configAuth.githubAuth.clientSecret,
+            callbackURL: configAuth.githubAuth.callbackURL,
+            scope: configAuth.githubAuth.scope,
+            passReqToCallback: true, // allows us to pass in the req from our route (lets us check if a user is logged in or not)
+            state: true
+        },
+        function(request, token, refreshToken, profile, done) {
+            handleUser(request, token, null, profile, done, {
+                'github.id': profile.id
+            }, function(user, profile, token) {
+                var changed = !user.github.token
+                user.github.id = profile.id;
+                user.github.token = token;
+                user.github.name = profile.displayName;
+                user.github.email = (profile.emails[0].value || '').toLowerCase(); // pull the first email
+                return changed;
+            });
+        }));
 };
 
 var handleUser = function(request, token, refreshToken, profile, done, criteria, assign_fn) {

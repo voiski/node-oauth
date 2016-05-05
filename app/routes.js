@@ -62,9 +62,11 @@ module.exports = function(app, passport) {
 
     app.use('/', appRouter);
 
-    appendAuthRoute(passport, 'facebook', 'email');
+    appendAuthRoute(passport, 'facebook');
     appendAuthRoute(passport, 'google');
     appendAuthRoute(passport, 'twitter');
+    appendAuthRoute(passport, 'linkedin');
+    appendAuthRoute(passport, 'github');
 
     //Set app to use authRouter for /auth/* requests
     app.use('/auth', authRouter);
@@ -104,18 +106,14 @@ var isLoggedIn = function(request, response, next) {
     response.redirect('/');
 }
 
-var appendAuthRoute = function(passport, id, scope, logout_fn) {
-    authRouter.get('/' + id, passport.authenticate(id, {
-        scope: scope||['profile', 'email']
-    }));
+var appendAuthRoute = function(passport, id) {
+    authRouter.get('/' + id, passport.authenticate(id));
     authRouter.get('/' + id + '/callback', passport.authenticate(id, {
         successRedirect: '/profile',
         failureRedirect: '/'
     }));
 
-    connectRouter.get('/' + id, passport.authorize(id, {
-        scope: 'email'
-    }));
+    connectRouter.get('/' + id, passport.authorize(id));
     connectRouter.get('/' + id + '/callback',
         passport.authorize(id, {
             successRedirect: '/profile',

@@ -25,6 +25,18 @@ var userSchema = mongoose.Schema({
         token        : String,
         email        : String,
         name         : String
+    },
+    linkedin         : {
+        id           : String,
+        token        : String,
+        email        : String,
+        name         : String
+    },
+    github           : {
+        id           : String,
+        token        : String,
+        email        : String,
+        name         : String
     }
 });
 
@@ -41,7 +53,9 @@ userSchema.methods.validPassword = function(password) {
 userSchema.methods.email = function() {
     return (this.facebook?this.facebook.email:null)||
            (this.twitter?this.twitter.email:null)||
-           (this.google?this.google.email:null)
+           (this.google?this.google.email:null)||
+           (this.github?this.github.email:null)||
+           (this.linkedin?this.linkedin.email:null)
 };
 
 // create the model for users and expose it to our app
